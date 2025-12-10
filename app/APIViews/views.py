@@ -5,7 +5,7 @@ from rest_framework import status
 from APIViews.models import EmployeeModel, BranchModel, SalaryModel
 from APIViews.serializers import EmployeeSerializer, BranchSerializer, SalarySerializer
 from APIViews.paginations import ApiPagination
-
+from APIViews.filters import EmployeeFilter
 
 
 # For the Employees
@@ -17,8 +17,10 @@ class EmployeeListCreateView(APIView):
         
         employees = EmployeeModel.objects.all().order_by('-id')
         
+        filtered_emp = EmployeeFilter(request.GET, queryset=employees).qs
+        
         paginator = ApiPagination()
-        result_page_emp = paginator.paginate_queryset(employees, request, view=self)
+        result_page_emp = paginator.paginate_queryset(filtered_emp, request, view=self)
         
         serializer = EmployeeSerializer(result_page_emp, many = True)
         return paginator.get_paginated_response(serializer.data)
